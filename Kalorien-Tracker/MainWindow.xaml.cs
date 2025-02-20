@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Newtonsoft.Json;
@@ -81,10 +79,10 @@ namespace Kalorien_Tracker
 
         private void DisplaySettings()
         {
-            CalorieGoalTextBox.Text = settings["calorie_goal"].ToString();
-            ProteinTextBox.Text = (settings["protein_ratio"] * 100).ToString();
-            CarbsTextBox.Text = (settings["carbs_ratio"] * 100).ToString();
-            FatTextBox.Text = (settings["fat_ratio"] * 100).ToString();
+            CalorieGoalTextBox.Text = settings["calorie_goal"].ToString(CultureInfo.CurrentCulture);
+            ProteinTextBox.Text = (settings["protein_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
+            CarbsTextBox.Text = (settings["carbs_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
+            FatTextBox.Text = (settings["fat_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
         }
 
         private void UpdateDailySummary()
@@ -179,15 +177,6 @@ namespace Kalorien_Tracker
             UpdateDailySummary();
         }
 
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            TextBox textBox = sender as TextBox;
-            if (textBox != null && textBox.Text == textBox.Tag.ToString())
-            {
-                textBox.Text = string.Empty;
-            }
-        }
-
         private void RemoveFood_Click(object sender, RoutedEventArgs e)
         {
             if (DailySummaryListBox.SelectedItem != null)
@@ -198,13 +187,11 @@ namespace Kalorien_Tracker
                 string date = currentDate.ToString("yyyy-MM-dd");
                 tracker.RemoveFood(date, foodName);
                 tracker.SaveDailyLogToJson("daily_log.json");
-                MessageBox.Show("Nahrungsmittel entfernt!", "Erfolg", MessageBoxButton.OK, MessageBoxImage.Information);
                 UpdateDailySummary();
             }
             else
             {
-                MessageBox.Show("Bitte wählen Sie ein Nahrungsmittel aus der Liste aus.", "Fehler", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Show("Bitte wählen Sie ein Nahrungsmittel aus der Liste aus.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -238,13 +225,7 @@ namespace Kalorien_Tracker
 
             return d[source.Length, target.Length];
         }
-
-        public FoodItem FindClosestMatch(string input)
-        {
-            var foodData = JsonConvert.DeserializeObject<List<FoodItem>>(File.ReadAllText("food_data.json"));
-            return foodData.OrderBy(food => LevenshteinDistance(input, food.Name)).FirstOrDefault();
-        }
-
+        
         private void OpenAddMealWindow_Click(object sender, RoutedEventArgs e)
         {
             var addMealWindow = new AddMealWindow();

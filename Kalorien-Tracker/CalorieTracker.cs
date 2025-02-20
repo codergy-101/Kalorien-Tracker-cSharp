@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using Newtonsoft.Json;
+
+namespace Kalorien_Tracker;
 
 public class CalorieTracker
 {
@@ -100,8 +100,7 @@ public class CalorieTracker
     {
         File.WriteAllText(filename, JsonConvert.SerializeObject(DailyLog, Formatting.Indented));
     }
-    
-   
+
     public void RemoveFood(string date, string foodName)
     {
         if (DailyLog.ContainsKey(date))
