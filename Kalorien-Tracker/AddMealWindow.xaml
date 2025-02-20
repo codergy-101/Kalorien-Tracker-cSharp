@@ -69,19 +69,19 @@
                 </ListBox>
             </Popup>
 
-            <Label Content="Kalorien:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Kalorien (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealCaloriesTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Protein:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Protein (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealProteinTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Kohlenhydrate:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Kohlenhydrate (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealCarbsTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Fett:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Fett (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealFatTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Menge:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Menge (in Gramm):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealAmountTextBox" Margin="0,10,0,0"/>
 
             <Button Content="Hinzufügen" Width="220" Margin="0,40,0,0" Click="AddMealButton_Click"/>
