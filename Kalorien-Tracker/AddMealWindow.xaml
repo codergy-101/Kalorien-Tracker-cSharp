@@ -1,0 +1,90 @@
+﻿<Window x:Class="Kalorien_Tracker.AddMealWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kalorien_Tracker"
+        mc:Ignorable="d"
+        Title="Essen hinzufügen" Height="650" Width="600" Background="#2E2E2E">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#104e8b"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#1a1a1a"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#083b6e"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Width" Value="400"/>
+            <Setter Property="Background" Value="#424242"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="10">
+                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
+            <Label Content="Name des Essens:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <TextBox x:Name="MealNameTextBox" Margin="0,10,0,0" Width="400" TextChanged="MealNameTextBox_TextChanged"/>
+
+            <Popup x:Name="SuggestionsPopup" Placement="Top" PlacementTarget="{Binding ElementName=MealNameTextBox}" StaysOpen="False">
+                <ListBox x:Name="SuggestionsListBox" Height="100" Width="{Binding ElementName=MealNameTextBox, Path=ActualWidth}" Margin="0,10,0,0" Background="#424242" Foreground="White" FontSize="18" SelectionChanged="SuggestionsListBox_SelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Vertical" VerticalAlignment="Bottom"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </Popup>
+
+            <Label Content="Kalorien:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <TextBox x:Name="MealCaloriesTextBox" Margin="0,10,0,0"/>
+
+            <Label Content="Protein:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <TextBox x:Name="MealProteinTextBox" Margin="0,10,0,0"/>
+
+            <Label Content="Kohlenhydrate:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <TextBox x:Name="MealCarbsTextBox" Margin="0,10,0,0"/>
+
+            <Label Content="Fett:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <TextBox x:Name="MealFatTextBox" Margin="0,10,0,0"/>
+
+            <Label Content="Menge:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <TextBox x:Name="MealAmountTextBox" Margin="0,10,0,0"/>
+
+            <Button Content="Hinzufügen" Width="220" Margin="0,40,0,0" Click="AddMealButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
