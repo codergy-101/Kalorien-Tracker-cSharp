@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using Newtonsoft.Json;
 
 namespace Kalorien_Tracker
@@ -16,6 +16,7 @@ namespace Kalorien_Tracker
         {
             InitializeComponent();
             LoadSettings();
+            LoadFoodData(null, null); // Call the method when the program starts
             tracker = new CalorieTracker((int)settings["calorie_goal"], settings["protein_ratio"],
                 settings["carbs_ratio"], settings["fat_ratio"]);
             currentDate = DateTime.Today;
@@ -46,6 +47,18 @@ namespace Kalorien_Tracker
             {
                 MessageBox.Show("Keine gespeicherten Daten gefunden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+        private void LoadFoodData(object sender, RoutedEventArgs e)
+        {
+            string filePath = "C:\\Users\\pascal.bonin\\RiderProjects\\Kalorien-Tracker-cSharp\\Kalorien-Tracker\\bin\\Debug\\net8.0-windows\\food_data.json";
+
+            if (!File.Exists(filePath))
+            {
+                string defaultContent = "[]";
+                File.WriteAllText(filePath, defaultContent, Encoding.UTF8);
+            }
+        
+            string jsonData = File.ReadAllText(filePath, Encoding.UTF8);
         }
 
         private void SaveData()

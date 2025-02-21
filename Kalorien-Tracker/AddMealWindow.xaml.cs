@@ -1,5 +1,8 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Text;
+using System.Windows;
 using System.Windows.Controls;
+
 
 namespace Kalorien_Tracker
 {
@@ -58,7 +61,7 @@ namespace Kalorien_Tracker
                 SuggestionsPopup.IsOpen = false;
             }
         }
-
+        
         private void AddMealButton_Click(object sender, RoutedEventArgs e)
         {
             try
