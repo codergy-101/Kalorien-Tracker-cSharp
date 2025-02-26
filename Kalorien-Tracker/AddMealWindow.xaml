@@ -3,25 +3,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Kalorien_Tracker"
         mc:Ignorable="d"
-        Title="Essen hinzufügen" Height="650" Width="600" Background="#2E2E2E">
+        Title="Essen hinzufügen" Height="650" Width="600" Background="#1a1a1a">
     <Window.Resources>
+        <!-- Define Accent Color and Brushes -->
+        <Color x:Key="AccentColor">#1560BD</Color>
+        <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#282828"/>
+        <SolidColorBrush x:Key="ControlForegroundBrush" Color="White"/>
+
+        <!-- Modern Button Style -->
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#104e8b"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
             <Setter Property="Padding" Value="15,10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#1a1a1a"/>
+            <Setter Property="BorderBrush" Value="#222222"/>
+            <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -30,23 +37,27 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#083b6e"/>
+                    <Setter Property="Background" Value="#104e8b"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Modern TextBox Style -->
         <Style TargetType="TextBox">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="Width" Value="400"/>
-            <Setter Property="Background" Value="#424242"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentColor}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="10">
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
                             <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
                         </Border>
                     </ControlTemplate>
@@ -54,37 +65,45 @@
             </Setter>
         </Style>
     </Window.Resources>
+
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
-            <Label Content="Name des Essens:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
-            <TextBox x:Name="MealNameTextBox" Margin="0,10,0,0" Width="400" TextChanged="MealNameTextBox_TextChanged"/>
+            <Label Content="Name des Essens:" Foreground="{StaticResource ControlForegroundBrush}" 
+                   FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <TextBox x:Name="MealNameTextBox" Margin="0,10,0,0" TextChanged="MealNameTextBox_TextChanged"/>
 
             <Popup x:Name="SuggestionsPopup" Placement="Top" PlacementTarget="{Binding ElementName=MealNameTextBox}" StaysOpen="False">
-                <ListBox x:Name="SuggestionsListBox" Height="100" Width="{Binding ElementName=MealNameTextBox, Path=ActualWidth}" Margin="0,10,0,0" Background="#424242" Foreground="White" FontSize="18" SelectionChanged="SuggestionsListBox_SelectionChanged">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel Orientation="Vertical" VerticalAlignment="Bottom"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
+                <ListBox x:Name="SuggestionsListBox" Height="100" 
+                         Width="{Binding ElementName=MealNameTextBox, Path=ActualWidth}" 
+                         Margin="0,10,0,0" 
+                         Background="{StaticResource ControlBackgroundBrush}" 
+                         Foreground="{StaticResource ControlForegroundBrush}" 
+                         FontSize="16" 
+                         SelectionChanged="SuggestionsListBox_SelectionChanged"/>
             </Popup>
 
-            <Label Content="Kalorien (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Kalorien (pro 100g):" Foreground="{StaticResource ControlForegroundBrush}" 
+                   FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealCaloriesTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Protein (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Protein (pro 100g):" Foreground="{StaticResource ControlForegroundBrush}" 
+                   FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealProteinTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Kohlenhydrate (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Kohlenhydrate (pro 100g):" Foreground="{StaticResource ControlForegroundBrush}" 
+                   FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealCarbsTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Fett (pro 100g):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Fett (pro 100g):" Foreground="{StaticResource ControlForegroundBrush}" 
+                   FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealFatTextBox" Margin="0,10,0,0"/>
 
-            <Label Content="Menge (in Gramm):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+            <Label Content="Menge (in Gramm):" Foreground="{StaticResource ControlForegroundBrush}" 
+                   FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <TextBox x:Name="MealAmountTextBox" Margin="0,10,0,0"/>
 
-            <Button Content="Hinzufügen" Width="220" Margin="0,40,0,0" Click="AddMealButton_Click"/>
+            <Button Content="Hinzufügen" Width="220" Margin="0,40,0,0"
+                    Click="AddMealButton_Click"/>
         </StackPanel>
     </Grid>
 </Window>
