@@ -21,7 +21,7 @@
             <Setter Property="Margin" Value="8"/>
             <Setter Property="Padding" Value="15,10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#3365d3"/>
+            <Setter Property="BorderBrush" Value="#222222"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -74,20 +74,20 @@
         <!-- Right Content -->
         <StackPanel Grid.Column="1" Margin="10">
             <Label Content="Kalorienziel:" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
-            <TextBox x:Name="CalorieGoalTextBox" Width="200" Margin="0,10,0,0" Background="#282828" Foreground="White"/>
+            <TextBox x:Name="CalorieGoalTextBox" Width="170"  Height="24"  Margin="0,10,0,0" Background="#282828" Foreground="White"/>
             <Label Content="Makro-Verhältnis (P/K/F):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                 <StackPanel>
                     <Label Content="Protein" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
-                    <TextBox x:Name="ProteinTextBox" Width="50" Margin="5" Background="#282828" Foreground="White"/>
+                    <TextBox x:Name="ProteinTextBox" Width="50"  Height="24" Margin="5" Background="#282828" Foreground="White"/>
                 </StackPanel>
                 <StackPanel>
                     <Label Content="KH" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
-                    <TextBox x:Name="CarbsTextBox" Width="50" Margin="5" Background="#282828" Foreground="White"/>
+                    <TextBox x:Name="CarbsTextBox" Width="50"  Height="24" Margin="5" Background="#282828" Foreground="White"/>
                 </StackPanel>
                 <StackPanel>
                     <Label Content="Fett" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
-                    <TextBox x:Name="FatTextBox" Width="50" Margin="5" Background="#282828" Foreground="White"/>
+                    <TextBox x:Name="FatTextBox" Width="50"  Height="24" Margin="5" Background="#282828" Foreground="White"/>
                 </StackPanel>
             </StackPanel>
             <Label Content="Fortschritt" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,20,0,0"/>
