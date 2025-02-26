@@ -15,6 +15,7 @@ namespace Kalorien_Tracker
         public MainWindow()
         {
             InitializeComponent();
+            Loaded += LoadFoodData;
             LoadSettings();
             LoadFoodData(null, null); // Call the method when the program starts
             tracker = new CalorieTracker((int)settings["calorie_goal"], settings["protein_ratio"],
@@ -50,7 +51,7 @@ namespace Kalorien_Tracker
         }
         private void LoadFoodData(object sender, RoutedEventArgs e)
         {
-            string filePath = "C:\\Users\\pascal.bonin\\RiderProjects\\Kalorien-Tracker-cSharp\\Kalorien-Tracker\\bin\\Debug\\net8.0-windows\\food_data.json";
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "food_data.json");
 
             if (!File.Exists(filePath))
             {
