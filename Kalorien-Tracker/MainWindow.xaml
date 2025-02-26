@@ -5,25 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kalorien_Tracker"
         mc:Ignorable="d"
-        Title="Kalorien-Tracker" Height="1050" Width="600" Background="#2E2E2E"
+        Title="Kalorien-Tracker" Height="Auto" Width="Auto" Background="#1a1a1a"
         Loaded="Window_Loaded" Closing="Window_Closing">
+
+    <!-- Window Resources -->
     <Window.Resources>
+        <!-- Converter for ProgressBar Width -->
         <local:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter"/>
+
+        <!-- Button Style -->
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#104e8b"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Background" Value="#282828"></Setter>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
             <Setter Property="Padding" Value="15,10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#1a1a1a"/>
+            <Setter Property="BorderBrush" Value="#3365d3"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
+                                CornerRadius="10"
+                                SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -32,107 +38,65 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#083b6e"/>
+                    <Setter Property="Background" Value="#104e8b"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <Style TargetType="ProgressBar">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="10">
-                            <Grid ClipToBounds="True">
-                                <Rectangle Fill="{TemplateBinding Foreground}"
-                                           Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Value, Converter={StaticResource ProgressBarWidthConverter}}"
-                                           HorizontalAlignment="Left"
-                                           RadiusX="10" RadiusY="10"/>
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="ListBox">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="10">
-                            <ScrollViewer Margin="0" Focusable="False">
-                                <ItemsPresenter/>
-                            </ScrollViewer>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="10">
-                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="ListBoxItem">
-            <Setter Property="FontSize" Value="16"/>
-        </Style>
     </Window.Resources>
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
-            <Label Content="Kalorienziel:" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
-            <TextBox x:Name="CalorieGoalTextBox" Width="200" Margin="0,10,0,0" Background="#424242" Foreground="White"/>
 
+    <!-- Main Grid Layout -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Sidebar -->
+        <Border Grid.Column="0" Margin="10" CornerRadius="10">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" Opacity="0.2">
+                    <GradientStop Color="#1560BD" Offset="0"/>
+                    <GradientStop Color="#1560BD" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <UniformGrid Rows="8" Margin="10" VerticalAlignment="Center">
+                <Label x:Name="DateLabel" Content="Datum" Foreground="White" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <Button Content="Gestern" Click="PrevDay_Click"/>
+                <Button Content="Morgen" Click="NextDay_Click"/>
+                <Button Content="Aktualisieren" Click="UpdateSettings_Click"/>
+                <Button Content="Speichern" Click="SaveData_Click"/>
+                <Button Content="Laden" Click="LoadData_Click"/>
+                <Button Content="Essen hinzufügen" Click="OpenAddMealWindow_Click"/>
+                <Button Content="Essen entfernen" Click="RemoveFood_Click"/>
+            </UniformGrid>
+        </Border>
+
+        <!-- Right Content -->
+        <StackPanel Grid.Column="1" Margin="10">
+            <Label Content="Kalorienziel:" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+            <TextBox x:Name="CalorieGoalTextBox" Width="200" Margin="0,10,0,0" Background="#282828" Foreground="White"/>
             <Label Content="Makro-Verhältnis (P/K/F):" Foreground="White" FontSize="16" Margin="0,10,0,0" HorizontalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                 <StackPanel>
-                    <Label Content="Protein" Foreground="#32CD32" FontSize="16" HorizontalAlignment="Center"/>
-                    <TextBox x:Name="ProteinTextBox" Width="50" Margin="5" Background="#32CD32" Foreground="White"/>
+                    <Label Content="Protein" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="ProteinTextBox" Width="50" Margin="5" Background="#282828" Foreground="White"/>
                 </StackPanel>
                 <StackPanel>
-                    <Label Content="KH" Foreground="#1E90FF" FontSize="16" HorizontalAlignment="Center"/>
-                    <TextBox x:Name="CarbsTextBox" Width="50" Margin="5" Background="#1E90FF" Foreground="White"/>
+                    <Label Content="KH" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="CarbsTextBox" Width="50" Margin="5" Background="#282828" Foreground="White"/>
                 </StackPanel>
                 <StackPanel>
-                    <Label Content="Fett" Foreground="#FF4500" FontSize="16" HorizontalAlignment="Center"/>
-                    <TextBox x:Name="FatTextBox" Width="50" Margin="5" Background="#FF4500" Foreground="White"/>
+                    <Label Content="Fett" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="FatTextBox" Width="50" Margin="5" Background="#282828" Foreground="White"/>
                 </StackPanel>
             </StackPanel>
-
-            <Button Content="Aktualisieren" Width="220" Margin="0,10,0,0" Click="UpdateSettings_Click"/>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <Button Content="&#8592;" Width="70" Click="PrevDay_Click"/>
-                <Label x:Name="DateLabel" Content="{Binding CurrentDate, StringFormat=dd.MM.yyyy}" Foreground="White" FontSize="16" Margin="10,0"/>
-                <Button Content="&#8594;" Width="70" Click="NextDay_Click"/>
-            </StackPanel>
-
-            <ListBox x:Name="DailySummaryListBox" Width="500" Height="300" Background="#424242" Foreground="White" Margin="0,10,0,0"/>
-
-            <ProgressBar x:Name="CalorieProgressBar" Width="500" Height="20" Margin="0,10,0,0"/>
-            <Label x:Name="ProgressLabel" Content="0 / 0 kcal (0%)" Foreground="White" FontSize="16" Margin="0,10,0,0"/>
-
-            <TextBox x:Name="MacroTextBox" Width="500" Height="100" Background="#2E2E2E" Foreground="White" IsReadOnly="True" Margin="0,10,0,0"/>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <Button Content="Speichern" Width="120" Click="SaveData_Click"/>
-                <Button Content="Laden" Width="120" Click="LoadData_Click"/>
-            </StackPanel>
-            <Button Content="Essen hinzufügen" Width="220" Margin="0,10,0,0" Click="OpenAddMealWindow_Click"/>
-            <Button Content="Essen entfernen" Width="220" Margin="0,10,0,0" Click="RemoveFood_Click"/>
+            <Label Content="Fortschritt" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <ProgressBar x:Name="CalorieProgressBar" Width="400" Height="20" Opacity="0.1"  Margin="0,10,0,0"/>
+            <Label x:Name="ProgressLabel" Content="0 / 0 kcal (0%)" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            <Label Content="Tageszusammenfassung" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <ListBox x:Name="DailySummaryListBox" Opacity="0.4" Width="400" Height="300" Background="#282828" Foreground="White" Margin="0,10,0,0"/>
+            <Label Content="Makrowerte" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <TextBox x:Name="MacroTextBox" Opacity="0.4" Width="400" Height="100" Background="#282828" Foreground="White" IsReadOnly="True" Margin="0,10,0,0"/>
         </StackPanel>
     </Grid>
 </Window>

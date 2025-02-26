@@ -107,7 +107,7 @@ namespace Kalorien_Tracker
                          new List<FoodItem>()))
             {
                 DailySummaryListBox.Items.Add(
-                    $"{food.Name}: {food.Calories:F1} kcal (P:{food.Protein:F1}g, K:{food.Carbs:F1}g, F:{food.Fat:F1}g)");
+                    $"{food.Name}:\n {food.Calories:F1} kcal (P:{food.Protein:F1}g, K:{food.Carbs:F1}g, F:{food.Fat:F1}g)");
             }
 
             double progress = (totals["calories"] / tracker.CalorieGoal) * 100;
