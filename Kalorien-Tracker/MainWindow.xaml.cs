@@ -1,8 +1,13 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Media; // Add this for Color and SolidColorBrush
 using Newtonsoft.Json;
+using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace Kalorien_Tracker
 {
@@ -12,12 +17,21 @@ namespace Kalorien_Tracker
         private DateTime currentDate;
         private Dictionary<string, double> settings;
 
+        // Add property for chart binding
+        public SeriesCollection MacroSeries { get; set; }
+        public Func<ChartPoint, string> LabelFormatter { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // Initialize chart
+            MacroSeries = new SeriesCollection();
+            LabelFormatter = point => $"{point.Y:N1}g ({point.Participation:P1})";
+
             Loaded += LoadFoodData;
             LoadSettings();
-            LoadFoodData(null, null); // Call the method when the program starts
+            LoadFoodData(null, null);
             tracker = new CalorieTracker((int)settings["calorie_goal"], settings["protein_ratio"],
                 settings["carbs_ratio"], settings["fat_ratio"]);
             currentDate = DateTime.Today;
@@ -25,6 +39,75 @@ namespace Kalorien_Tracker
             UpdateDailySummary();
             DisplaySettings();
             DateLabel.Content = currentDate.ToString("dd.MM.yyyy");
+
+            DataContext = this; // Set DataContext for binding
+        }
+
+        private void UpdateMacroPieChart(double protein, double carbs, double fat)
+        {
+            MacroSeries.Clear();
+
+            // Define custom colors for each macro
+            var fatColor = new SolidColorBrush(Color.FromRgb(231, 76, 60));   // Red fatColor
+            var proteinColor = new SolidColorBrush(Color.FromRgb(46, 204, 113));    // Green proteinColor
+            var carbsColor = new SolidColorBrush(Color.FromRgb(52, 152, 219));      // Blue carbsColor
+
+            MacroSeries.Add(new PieSeries
+            {
+                Title = "Protein",
+                Values = new ChartValues<double> { protein },
+                DataLabels = true,
+                LabelPoint = LabelFormatter,
+                Fill = proteinColor
+            });
+
+            MacroSeries.Add(new PieSeries
+            {
+                Title = "Kohlenhydrate",
+                Values = new ChartValues<double> { carbs },
+                DataLabels = true,
+                LabelPoint = LabelFormatter,
+                Fill = carbsColor
+            });
+
+            MacroSeries.Add(new PieSeries
+            {
+                Title = "Fett",
+                Values = new ChartValues<double> { fat },
+                DataLabels = true,
+                LabelPoint = LabelFormatter,
+                Fill = fatColor
+            });
+        }
+
+        private void UpdateDailySummary()
+        {
+            var totals = tracker.GetDailyTotals(currentDate.ToString("yyyy-MM-dd"));
+            DailySummaryListBox.Items.Clear();
+
+            foreach (var food in tracker.DailyLog.GetValueOrDefault(currentDate.ToString("yyyy-MM-dd"),
+                         new List<FoodItem>()))
+            {
+                DailySummaryListBox.Items.Add(
+                    $"{food.Name}:\n {food.Calories:F1} kcal (P:{food.Protein:F1}g, K:{food.Carbs:F1}g, F:{food.Fat:F1}g)");
+            }
+
+            double progress = (totals["calories"] / tracker.CalorieGoal) * 100;
+            CalorieProgressBar.Value = Math.Min(progress, 100);
+            ProgressLabel.Content = $"{totals["calories"]:F1} / {tracker.CalorieGoal} kcal ({progress:F1}%)";
+
+            double proteinGoal = tracker.CalorieGoal * tracker.MacroRatios["protein"] / 4;
+            double carbsGoal = tracker.CalorieGoal * tracker.MacroRatios["carbs"] / 4;
+            double fatGoal = tracker.CalorieGoal * tracker.MacroRatios["fat"] / 9;
+            double proteinProgress = (totals["protein"] / proteinGoal) * 100;
+            double carbsProgress = (totals["carbs"] / carbsGoal) * 100;
+            double fatProgress = (totals["fat"] / fatGoal) * 100;
+
+            MacroTextBox.Text =
+                $"Makronährstoffe:\nProtein: {totals["protein"]:F1}g / {proteinGoal:F1}g ({proteinProgress:F1}%)\nKohlenhydrate: {totals["carbs"]:F1}g / {carbsGoal:F1}g ({carbsProgress:F1}%)\nFett: {totals["fat"]:F1}g / {fatGoal:F1}g ({fatProgress:F1}%)";
+
+            // Update pie chart
+            UpdateMacroPieChart(totals["protein"], totals["carbs"], totals["fat"]);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -101,32 +184,7 @@ namespace Kalorien_Tracker
             FatTextBox.Text = (settings["fat_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
         }
 
-        private void UpdateDailySummary()
-        {
-            var totals = tracker.GetDailyTotals(currentDate.ToString("yyyy-MM-dd"));
-            DailySummaryListBox.Items.Clear();
-
-            foreach (var food in tracker.DailyLog.GetValueOrDefault(currentDate.ToString("yyyy-MM-dd"),
-                         new List<FoodItem>()))
-            {
-                DailySummaryListBox.Items.Add(
-                    $"{food.Name}:\n {food.Calories:F1} kcal (P:{food.Protein:F1}g, K:{food.Carbs:F1}g, F:{food.Fat:F1}g)");
-            }
-
-            double progress = (totals["calories"] / tracker.CalorieGoal) * 100;
-            CalorieProgressBar.Value = Math.Min(progress, 100);
-            ProgressLabel.Content = $"{totals["calories"]:F1} / {tracker.CalorieGoal} kcal ({progress:F1}%)";
-
-            double proteinGoal = tracker.CalorieGoal * tracker.MacroRatios["protein"] / 4;
-            double carbsGoal = tracker.CalorieGoal * tracker.MacroRatios["carbs"] / 4;
-            double fatGoal = tracker.CalorieGoal * tracker.MacroRatios["fat"] / 9;
-            double proteinProgress = (totals["protein"] / proteinGoal) * 100;
-            double carbsProgress = (totals["carbs"] / carbsGoal) * 100;
-            double fatProgress = (totals["fat"] / fatGoal) * 100;
-
-            MacroTextBox.Text =
-                $"Makronährstoffe:\nProtein: {totals["protein"]:F1}g / {proteinGoal:F1}g ({proteinProgress:F1}%)\nKohlenhydrate: {totals["carbs"]:F1}g / {carbsGoal:F1}g ({carbsProgress:F1}%)\nFett: {totals["fat"]:F1}g / {fatGoal:F1}g ({fatProgress:F1}%)";
-        }
+        // Removed duplicate UpdateDailySummary method
 
         private void UpdateSettings_Click(object sender, RoutedEventArgs e)
         {
@@ -212,42 +270,6 @@ namespace Kalorien_Tracker
                 MessageBox.Show("Bitte wählen Sie ein Nahrungsmittel aus der Liste aus.", "Fehler", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
-        }
-
-        public static int LevenshteinDistance(string source, string target)
-        {
-            if (string.IsNullOrEmpty(source))
-            {
-                return string.IsNullOrEmpty(target) ? 0 : target.Length;
-            }
-
-            if (string.IsNullOrEmpty(target))
-            {
-                return source.Length;
-            }
-
-            int[,] d = new int[source.Length + 1, target.Length + 1];
-
-            for (int i = 0; i <= source.Length; d[i, 0] = i++)
-            {
-            }
-
-            for (int j = 0; j <= target.Length; d[0, j] = j++)
-            {
-            }
-
-            for (int i = 1; i <= source.Length; i++)
-            {
-                for (int j = 1; j <= target.Length; j++)
-                {
-                    int cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
-                    d[i, j] = Math.Min(
-                        Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
-                        d[i - 1, j - 1] + cost);
-                }
-            }
-
-            return d[source.Length, target.Length];
         }
 
         private void OpenAddMealWindow_Click(object sender, RoutedEventArgs e)

@@ -3,8 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="Kalorien-Tracker" Height="950" Width="700" Background="#1a1a1a"
+        Title="Kalorien-Tracker" Height="1200" Width="700" Background="#1a1a1a"
         Loaded="Window_Loaded" Closing="Window_Closing">
 
     <!-- Window Resources -->
@@ -122,45 +123,67 @@
             </Grid>
         </Border>
 
-        <!-- Right Content -->
-        <StackPanel Grid.Column="1" Margin="10">
-            <Label Content="Kalorienziel:" Foreground="White" FontSize="16" HorizontalAlignment="Center" Opacity="0.6" />
-            <TextBox x:Name="CalorieGoalTextBox" TextAlignment="Center" Width="170" Height="30" Padding="2"
-                     Margin="0,10,0,0" Background="#282828" Foreground="White" BorderBrush="#1560BD" />
-            <Label Content="Makro-Verhältnis (P/K/F):" Foreground="White" FontSize="16" Margin="0,10,0,0"
-                   HorizontalAlignment="Center" Opacity="0.6" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <StackPanel>
-                    <Label Content="Protein" Foreground="White" FontSize="16" HorizontalAlignment="Center"
-                           Opacity="0.6" />
-                    <TextBox x:Name="ProteinTextBox" Width="50" Height="30" Padding="2" TextAlignment="Center"
-                             Margin="5" Background="#282828" Foreground="White" BorderBrush="#1560BD" />
-                </StackPanel>
-                <StackPanel>
-                    <Label Content="KH" Foreground="White" FontSize="16" HorizontalAlignment="Center" Opacity="0.6" />
-                    <TextBox x:Name="CarbsTextBox" Width="50" Height="30" Padding="2" TextAlignment="Center" Margin="5"
-                             Background="#282828" Foreground="White" BorderBrush="#1560BD" />
-                </StackPanel>
-                <StackPanel>
-                    <Label Content="Fett" Foreground="White" FontSize="16" HorizontalAlignment="Center" Opacity="0.6" />
-                    <TextBox x:Name="FatTextBox" Width="50" Height="30" Padding="2" TextAlignment="Center" Margin="5"
-                             Background="#282828" Foreground="White" BorderBrush="#1560BD" />
-                </StackPanel>
-            </StackPanel>
-            <Label Content="Fortschritt" Foreground="White" FontSize="18" HorizontalAlignment="Center"
-                   Margin="0,20,0,0" Opacity="0.6" />
-            <ProgressBar x:Name="CalorieProgressBar" Width="400" Height="26" Background="#282828" Margin="0,10,0,0"
-                         BorderBrush="#1560BD" />
-            <Label x:Name="ProgressLabel" Content="0 / 0 kcal (0%)" Foreground="White" FontSize="16"
-                   HorizontalAlignment="Center" Margin="0,10,0,0" Opacity="0.6" />
-            <Label Content="Tageszusammenfassung" Foreground="White" FontSize="18" HorizontalAlignment="Center"
-                   Margin="0,20,0,0" Opacity="0.6" />
-            <ListBox x:Name="DailySummaryListBox" Foreground="White" Width="400" Height="300" FontSize="16"
-                     Background="#282828" Margin="0,10,0,0" BorderBrush="#1560BD" />
-            <Label Content="Makrowerte" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,20,0,0"
-                   Opacity="0.6" />
-            <TextBox x:Name="MacroTextBox" Width="400" Height="100" FontSize="16" Padding="5" Background="#282828"
-                     Foreground="White" IsReadOnly="True" Margin="0,10,0,0" BorderBrush="#1560BD" />
-        </StackPanel>
+     <!-- Right Content -->
+<StackPanel Grid.Column="1" Margin="10">
+    <Label Content="Fortschritt" Foreground="White" FontSize="18" HorizontalAlignment="Center"
+           Margin="0,20,0,0" Opacity="0.6" />
+    <ProgressBar x:Name="CalorieProgressBar" Width="400" Height="26" Background="#282828" Margin="0,10,0,0"
+                 BorderBrush="#1560BD" />
+    <Label x:Name="ProgressLabel" Content="0 / 0 kcal (0%)" Foreground="White" FontSize="16"
+           HorizontalAlignment="Center" Margin="0,10,0,0" Opacity="0.6" />
+
+    <!-- Add Settings section -->
+    <Label Content="Einstellungen" Foreground="White" FontSize="18" HorizontalAlignment="Center"
+           Margin="0,20,0,0" Opacity="0.6" />
+    <Grid Width="400" Margin="0,10,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Content="Kalorienziel:" Grid.Row="0" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
+        <TextBox x:Name="CalorieGoalTextBox" Grid.Row="0" Grid.Column="1" Width="Auto" Margin="5,5,0,5"/>
+
+        <Label Content="Protein (%):" Grid.Row="1" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
+        <TextBox x:Name="ProteinTextBox" Grid.Row="1" Grid.Column="1" Width="Auto" Margin="5,5,0,5"/>
+
+        <Label Content="Kohlenhydrate (%):" Grid.Row="2" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
+        <TextBox x:Name="CarbsTextBox" Grid.Row="2" Grid.Column="1" Width="Auto" Margin="5,5,0,5"/>
+
+        <Label Content="Fett (%):" Grid.Row="3" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
+        <TextBox x:Name="FatTextBox" Grid.Row="3" Grid.Column="1" Width="Auto" Margin="5,5,0,5"/>
+    </Grid>
+
+    <Label Content="Tageszusammenfassung" Foreground="White" FontSize="18" HorizontalAlignment="Center"
+           Margin="0,20,0,0" Opacity="0.6" />
+    <ListBox x:Name="DailySummaryListBox" Foreground="White" Width="400" Height="300" FontSize="16"
+             Background="#282828" Margin="0,10,0,0" BorderBrush="#1560BD" />
+    <Label Content="Makrowerte" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,20,0,0"
+           Opacity="0.6" />
+    <TextBox x:Name="MacroTextBox" Width="400" Height="100" FontSize="16" Padding="5" Background="#282828"
+             Foreground="White" IsReadOnly="True" Margin="0,10,0,0" BorderBrush="#1560BD" />
+
+    <!-- Pie Chart (removed the label but kept the chart) -->
+    <lvc:PieChart x:Name="MacroPieChart"
+                  Width="250"
+                  Height="250"
+                  Margin="10"
+                  Series="{Binding MacroSeries}"
+                  LegendLocation="Bottom"
+                  Hoverable="True"
+                  DataTooltip="{x:Null}"
+                  Foreground="White"
+                  AnimationsSpeed="0:0:0.5">
+        <lvc:PieChart.ChartLegend>
+            <lvc:DefaultLegend BulletSize="15" />
+        </lvc:PieChart.ChartLegend>
+    </lvc:PieChart>
+</StackPanel>
     </Grid>
 </Window>
