@@ -114,7 +114,6 @@
 
                 <!-- Weitere Buttons in der zweiten Zeile -->
                 <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" Margin="0,20,0,0">
-                    <Button Content="Aktualisieren" Click="UpdateSettings_Click" />
                     <Button Content="Speichern" Click="SaveData_Click" />
                     <Button Content="Laden" Click="LoadData_Click" />
                     <Button Content="Essen hinzufügen" Click="OpenAddMealWindow_Click" />

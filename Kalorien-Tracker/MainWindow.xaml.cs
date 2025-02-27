@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
-using System.Windows.Media; // Add this for Color and SolidColorBrush
+using System.Windows.Media;
 using Newtonsoft.Json;
 using LiveCharts;
 using LiveCharts.Wpf;
@@ -16,8 +14,7 @@ namespace Kalorien_Tracker
         private CalorieTracker tracker;
         private DateTime currentDate;
         private Dictionary<string, double> settings;
-
-        // Add property for chart binding
+        
         public SeriesCollection MacroSeries { get; set; }
         public Func<ChartPoint, string> LabelFormatter { get; set; }
 
@@ -40,7 +37,7 @@ namespace Kalorien_Tracker
             DisplaySettings();
             DateLabel.Content = currentDate.ToString("dd.MM.yyyy");
 
-            DataContext = this; // Set DataContext for binding
+            DataContext = this;
         }
 
         private void UpdateMacroPieChart(double protein, double carbs, double fat)
@@ -48,9 +45,9 @@ namespace Kalorien_Tracker
             MacroSeries.Clear();
 
             // Define custom colors for each macro
-            var fatColor = new SolidColorBrush(Color.FromRgb(231, 76, 60));   // Red fatColor
-            var proteinColor = new SolidColorBrush(Color.FromRgb(46, 204, 113));    // Green proteinColor
-            var carbsColor = new SolidColorBrush(Color.FromRgb(52, 152, 219));      // Blue carbsColor
+            var fatColor = new SolidColorBrush(Color.FromRgb(231, 76, 60)); // Red fatColor
+            var proteinColor = new SolidColorBrush(Color.FromRgb(46, 204, 113)); // Green proteinColor
+            var carbsColor = new SolidColorBrush(Color.FromRgb(52, 152, 219)); // Blue carbsColor
 
             MacroSeries.Add(new PieSeries
             {
@@ -108,6 +105,22 @@ namespace Kalorien_Tracker
 
             // Update pie chart
             UpdateMacroPieChart(totals["protein"], totals["carbs"], totals["fat"]);
+        }
+        
+        private void LoadData_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                LoadSettings();
+                LoadData();
+                UpdateDailySummary();
+        
+                MessageBox.Show("Daten erfolgreich geladen.", "Erfolg", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler beim Laden der Daten: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -183,58 +196,64 @@ namespace Kalorien_Tracker
             CarbsTextBox.Text = (settings["carbs_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
             FatTextBox.Text = (settings["fat_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
         }
-
-        // Removed duplicate UpdateDailySummary method
-
-        private void UpdateSettings_Click(object sender, RoutedEventArgs e)
+        
+        private void SaveData_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                int newGoal = int.Parse(CalorieGoalTextBox.Text);
-                double newProtein = double.Parse(ProteinTextBox.Text) / 100;
-                double newCarbs = double.Parse(CarbsTextBox.Text) / 100;
-                double newFat = double.Parse(FatTextBox.Text) / 100;
-
-                if (Math.Abs(newProtein + newCarbs + newFat - 1.0) > 0.01)
+                if (double.TryParse(CalorieGoalTextBox.Text, out double newGoal))
                 {
-                    throw new ArgumentException("Makro-Verhältnis muss 100% ergeben");
+                    settings["calorie_goal"] = newGoal;
                 }
 
-                settings["calorie_goal"] = newGoal;
-                settings["protein_ratio"] = newProtein;
-                settings["carbs_ratio"] = newCarbs;
-                settings["fat_ratio"] = newFat;
+                if (double.TryParse(ProteinTextBox.Text, out double proteinPercentage))
+                {
+                    settings["protein_ratio"] = proteinPercentage / 100;
+                }
 
-                tracker.UpdateSettings(newGoal, newProtein, newCarbs, newFat);
-                SaveSettings();
-                MessageBox.Show("Einstellungen aktualisiert und gespeichert!", "Erfolg", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                if (double.TryParse(CarbsTextBox.Text, out double carbsPercentage))
+                {
+                    settings["carbs_ratio"] = carbsPercentage / 100;
+                }
+
+                if (double.TryParse(FatTextBox.Text, out double fatPercentage))
+                {
+                    settings["fat_ratio"] = fatPercentage / 100;
+                }
+                
+                double totalPercentage =
+                    (settings["protein_ratio"] + settings["carbs_ratio"] + settings["fat_ratio"]) * 100;
+                if (Math.Abs(totalPercentage - 100) > 1)
+                {
+                    MessageBox.Show("Die Makronährstoffe müssen in Summe 100% ergeben.", "Fehler", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
+                
+                tracker.UpdateSettings((int)settings["calorie_goal"], settings["protein_ratio"],
+                    settings["carbs_ratio"], settings["fat_ratio"]);
+                
                 UpdateDailySummary();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fehler beim Aktualisieren der Einstellungen: {ex.Message}", "Fehler",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-        }
-
-        private void SaveData_Click(object sender, RoutedEventArgs e)
-        {
-            tracker.SaveDailyLogToJson("daily_log.json");
-            MessageBox.Show("Daten wurden gespeichert.", "Gespeichert", MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-
-        private void LoadData_Click(object sender, RoutedEventArgs e)
-        {
+            
             try
             {
-                tracker.LoadFromJson("daily_log.json");
-                MessageBox.Show("Daten wurden geladen.", "Geladen", MessageBoxButton.OK, MessageBoxImage.Information);
-                UpdateDailySummary();
+                
+                SaveSettings();
+                SaveData();
+
+                MessageBox.Show("Daten erfolgreich gespeichert.", "Erfolg", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("Keine gespeicherten Daten gefunden.", "Fehler", MessageBoxButton.OK,
+                MessageBox.Show($"Fehler beim Speichern der Daten: {ex.Message}", "Fehler", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
         }
