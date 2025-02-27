@@ -1,8 +1,5 @@
-﻿using System.IO;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-
 
 namespace Kalorien_Tracker
 {
@@ -14,6 +11,7 @@ namespace Kalorien_Tracker
         public double MealCarbs { get; private set; }
         public double MealFat { get; private set; }
         public double MealAmount { get; private set; }
+
         private List<FoodItem> foodSuggestions;
 
         public AddMealWindow()
@@ -30,18 +28,19 @@ namespace Kalorien_Tracker
         {
             if (foodSuggestions != null && !string.IsNullOrWhiteSpace(MealNameTextBox.Text))
             {
+                // Filtere die Vorschläge basierend auf der Eingabe
                 var closestMatches = foodSuggestions
-                    .OrderBy(f => MainWindow.LevenshteinDistance(MealNameTextBox.Text, f.Name))
-                    .Take(3)
+                    .Where(f => f.Name.StartsWith(MealNameTextBox.Text, StringComparison.OrdinalIgnoreCase))
+                    .Take(3) // Nimm die ersten 3 Übereinstimmungen
                     .Select(f => f.Name)
-                    .Reverse() // Reverse the order
                     .ToList();
+
                 SuggestionsListBox.ItemsSource = closestMatches;
-                SuggestionsPopup.IsOpen = closestMatches.Any();
+                SuggestionsPopup.IsOpen = closestMatches.Any(); // Öffne das Popup, wenn es Vorschläge gibt
             }
             else
             {
-                SuggestionsPopup.IsOpen = false;
+                SuggestionsPopup.IsOpen = false; // Schließe das Popup, wenn keine Vorschläge vorhanden sind
             }
         }
 
@@ -49,8 +48,7 @@ namespace Kalorien_Tracker
         {
             if (SuggestionsListBox.SelectedItem != null)
             {
-                var selectedFood =
-                    foodSuggestions.FirstOrDefault(f => f.Name == SuggestionsListBox.SelectedItem.ToString());
+                var selectedFood = foodSuggestions.FirstOrDefault(f => f.Name == SuggestionsListBox.SelectedItem.ToString());
                 if (selectedFood != null)
                 {
                     MealNameTextBox.Text = selectedFood.Name;
@@ -60,7 +58,7 @@ namespace Kalorien_Tracker
                     MealFatTextBox.Text = selectedFood.Fat.ToString();
                 }
 
-                SuggestionsPopup.IsOpen = false;
+                SuggestionsPopup.IsOpen = false; // Schließe das Popup nach der Auswahl
             }
         }
 
@@ -80,7 +78,7 @@ namespace Kalorien_Tracker
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fehler bei der Eingabe: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
