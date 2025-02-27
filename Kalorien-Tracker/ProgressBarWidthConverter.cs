@@ -11,6 +11,7 @@ namespace Kalorien_Tracker
             {
                 return progress * 5; // Adjust the multiplier as needed
             }
+
             return 0;
         }
 

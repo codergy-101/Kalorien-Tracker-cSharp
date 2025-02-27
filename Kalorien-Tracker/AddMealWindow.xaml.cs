@@ -49,7 +49,8 @@ namespace Kalorien_Tracker
         {
             if (SuggestionsListBox.SelectedItem != null)
             {
-                var selectedFood = foodSuggestions.FirstOrDefault(f => f.Name == SuggestionsListBox.SelectedItem.ToString());
+                var selectedFood =
+                    foodSuggestions.FirstOrDefault(f => f.Name == SuggestionsListBox.SelectedItem.ToString());
                 if (selectedFood != null)
                 {
                     MealNameTextBox.Text = selectedFood.Name;
@@ -58,10 +59,11 @@ namespace Kalorien_Tracker
                     MealCarbsTextBox.Text = selectedFood.Carbs.ToString();
                     MealFatTextBox.Text = selectedFood.Fat.ToString();
                 }
+
                 SuggestionsPopup.IsOpen = false;
             }
         }
-        
+
         private void AddMealButton_Click(object sender, RoutedEventArgs e)
         {
             try

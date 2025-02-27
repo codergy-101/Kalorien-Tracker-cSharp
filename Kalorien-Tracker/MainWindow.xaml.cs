@@ -46,9 +46,11 @@ namespace Kalorien_Tracker
             }
             catch (Exception)
             {
-                MessageBox.Show("Keine gespeicherten Daten gefunden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Keine gespeicherten Daten gefunden.", "Fehler", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
+
         private void LoadFoodData(object sender, RoutedEventArgs e)
         {
             string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "food_data.json");
@@ -58,7 +60,7 @@ namespace Kalorien_Tracker
                 string defaultContent = "[]";
                 File.WriteAllText(filePath, defaultContent, Encoding.UTF8);
             }
-        
+
             string jsonData = File.ReadAllText(filePath, Encoding.UTF8);
         }
 
@@ -160,7 +162,8 @@ namespace Kalorien_Tracker
         private void SaveData_Click(object sender, RoutedEventArgs e)
         {
             tracker.SaveDailyLogToJson("daily_log.json");
-            MessageBox.Show("Daten wurden gespeichert.", "Gespeichert", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Daten wurden gespeichert.", "Gespeichert", MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         private void LoadData_Click(object sender, RoutedEventArgs e)
@@ -173,7 +176,8 @@ namespace Kalorien_Tracker
             }
             catch (Exception)
             {
-                MessageBox.Show("Keine gespeicherten Daten gefunden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Keine gespeicherten Daten gefunden.", "Fehler", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -205,7 +209,8 @@ namespace Kalorien_Tracker
             }
             else
             {
-                MessageBox.Show("Bitte wählen Sie ein Nahrungsmittel aus der Liste aus.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Bitte wählen Sie ein Nahrungsmittel aus der Liste aus.", "Fehler", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -223,8 +228,13 @@ namespace Kalorien_Tracker
 
             int[,] d = new int[source.Length + 1, target.Length + 1];
 
-            for (int i = 0; i <= source.Length; d[i, 0] = i++) { }
-            for (int j = 0; j <= target.Length; d[0, j] = j++) { }
+            for (int i = 0; i <= source.Length; d[i, 0] = i++)
+            {
+            }
+
+            for (int j = 0; j <= target.Length; d[0, j] = j++)
+            {
+            }
 
             for (int i = 1; i <= source.Length; i++)
             {
@@ -239,7 +249,7 @@ namespace Kalorien_Tracker
 
             return d[source.Length, target.Length];
         }
-        
+
         private void OpenAddMealWindow_Click(object sender, RoutedEventArgs e)
         {
             var addMealWindow = new AddMealWindow();
