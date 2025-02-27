@@ -7,8 +7,8 @@ public class CalorieTracker
 {
     public int CalorieGoal { get; set; }
     public Dictionary<string, double> MacroRatios { get; set; }
-    public Dictionary<string, List<FoodItem>> DailyLog { get; set; }
-    public List<FoodItem> FoodData { get; set; }
+    public Dictionary<string, List<FoodItem>>? DailyLog { get; set; }
+    public List<FoodItem>? FoodData { get; set; }
 
     public CalorieTracker(int calorieGoal, double proteinRatio, double carbRatio, double fatRatio)
     {
@@ -26,7 +26,7 @@ public class CalorieTracker
     public void AddFood(string name, double calories, double protein, double carbs, double fat, double amount)
     {
         string today = DateTime.Today.ToString("yyyy-MM-dd");
-        if (!DailyLog.ContainsKey(today))
+        if (DailyLog != null && !DailyLog.ContainsKey(today))
         {
             DailyLog[today] = new List<FoodItem>();
         }
@@ -41,11 +41,11 @@ public class CalorieTracker
             Fat = fat * factor
         };
 
-        DailyLog[today].Add(foodItem);
+        DailyLog?[today].Add(foodItem);
         SaveDailyLogToJson("daily_log.json");
 
         // Check if the food item already exists in FoodData
-        if (!FoodData.Any(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        if (FoodData != null && !FoodData.Any(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
             FoodData.Add(new FoodItem
             {
@@ -66,7 +66,7 @@ public class CalorieTracker
             day = DateTime.Today.ToString("yyyy-MM-dd");
         }
 
-        if (!DailyLog.ContainsKey(day))
+        if (DailyLog != null && !DailyLog.ContainsKey(day))
         {
             return new Dictionary<string, double>
             {
