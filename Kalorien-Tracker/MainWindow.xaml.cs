@@ -11,10 +11,13 @@ namespace Kalorien_Tracker
 {
     public partial class MainWindow : Window
     {
+        private Dictionary<string, double> weightData = new Dictionary<string, double>();
+        private const string WEIGHT_FILE = "weight_data.json";
+        private SeriesCollection weightChartSeries;
         private CalorieTracker tracker;
         private DateTime currentDate;
         private Dictionary<string, double> settings;
-        
+
         public SeriesCollection MacroSeries { get; set; }
         public Func<ChartPoint, string> LabelFormatter { get; set; }
 
@@ -39,6 +42,93 @@ namespace Kalorien_Tracker
 
             DataContext = this;
         }
+
+        private void UpdateWeightChart()
+        {
+            try
+            {
+                if (weightData == null || weightData.Count == 0)
+                    return;
+
+                // Sort the weight data by date
+                var sortedData = weightData
+                    .OrderBy(x => DateTime.ParseExact(x.Key, "yyyy-MM-dd", null))
+                    .ToList();
+
+                if (sortedData.Count == 0)
+                    return;
+
+                // Filter by selected time range
+                DateTime cutoffDate = DateTime.Now;
+
+                if (LastMonthRadio != null && LastMonthRadio.IsChecked == true)
+                {
+                    cutoffDate = DateTime.Now.AddMonths(-1);
+                }
+                else if (Last3MonthsRadio != null && Last3MonthsRadio.IsChecked == true)
+                {
+                    cutoffDate = DateTime.Now.AddMonths(-3);
+                }
+                else if (Last6MonthsRadio != null && Last6MonthsRadio.IsChecked == true)
+                {
+                    cutoffDate = DateTime.Now.AddMonths(-6);
+                }
+                else // Last year or default
+                {
+                    cutoffDate = DateTime.Now.AddYears(-1);
+                }
+
+                var filteredData = sortedData
+                    .Where(x => DateTime.ParseExact(x.Key, "yyyy-MM-dd", null) >= cutoffDate)
+                    .ToList();
+
+                // Initialize chart properties
+                weightChartSeries = new SeriesCollection();
+
+                if (filteredData.Count == 0)
+                {
+                    WeightChart.Series = weightChartSeries;
+                    return;
+                }
+
+                // Prepare data points
+                var weightValues = new ChartValues<double>();
+                var dateLabels = new List<string>();
+
+                // Add data points to the chart
+                foreach (var entry in filteredData)
+                {
+                    // Parse the date into a readable format for the axis
+                    DateTime entryDate = DateTime.ParseExact(entry.Key, "yyyy-MM-dd", null);
+                    dateLabels.Add(entryDate.ToString("dd.MM"));
+                    weightValues.Add(entry.Value);
+                }
+
+                // Add line series with data points
+                weightChartSeries.Add(new LineSeries
+                {
+                    Title = "Gewicht (kg)",
+                    Values = weightValues,
+                    PointGeometry = DefaultGeometries.Circle,
+                    PointGeometrySize = 8,
+                    LineSmoothness = 0,
+                    Stroke = System.Windows.Media.Brushes.DodgerBlue,
+                    Fill = System.Windows.Media.Brushes.Transparent
+                });
+
+                // Update the chart
+                WeightChart.Series = weightChartSeries;
+
+                // Set X-axis labels
+                WeightChart.AxisX[0].Labels = dateLabels;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler beim Aktualisieren des Gewichtsverlaufs: {ex.Message}", "Fehler",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         private void UpdateMacroPieChart(double protein, double carbs, double fat)
         {
@@ -77,6 +167,81 @@ namespace Kalorien_Tracker
             });
         }
 
+
+        private void LoadWeightData()
+        {
+            try
+            {
+                if (File.Exists(WEIGHT_FILE))
+                {
+                    weightData = JsonConvert.DeserializeObject<Dictionary<string, double>>(
+                        File.ReadAllText(WEIGHT_FILE));
+
+                    // Update weight chart with loaded data
+                    UpdateWeightChart();
+                }
+                else
+                {
+                    weightData = new Dictionary<string, double>();
+                }
+
+                // Display today's weight if available
+                UpdateWeightDisplay();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler beim Laden der Gewichtsdaten: {ex.Message}", "Fehler",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                weightData = new Dictionary<string, double>();
+            }
+        }
+
+        private void TimeRangeRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateWeightChart();
+        }
+
+
+        private void SaveWeight_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (double.TryParse(WeightTextBox.Text, out double weight))
+                {
+                    string currentDateStr = currentDate.ToString("yyyy-MM-dd");
+                    weightData[currentDateStr] = weight;
+                    SaveWeightData();
+                    UpdateWeightChart(); // Update the chart after saving
+                    MessageBox.Show($"Gewicht für {currentDate.ToString("dd.MM.yyyy")} gespeichert.",
+                        "Erfolg", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Bitte geben Sie ein gültiges Gewicht ein.", "Fehler",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler beim Speichern des Gewichts: {ex.Message}", "Fehler",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SaveWeightData()
+        {
+            try
+            {
+                File.WriteAllText(WEIGHT_FILE, JsonConvert.SerializeObject(weightData, Formatting.Indented));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler beim Speichern der Gewichtsdaten: {ex.Message}", "Fehler",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
         private void UpdateDailySummary()
         {
             var totals = tracker.GetDailyTotals(currentDate.ToString("yyyy-MM-dd"));
@@ -106,7 +271,7 @@ namespace Kalorien_Tracker
             // Update pie chart
             UpdateMacroPieChart(totals["protein"], totals["carbs"], totals["fat"]);
         }
-        
+
         private void LoadData_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -114,23 +279,27 @@ namespace Kalorien_Tracker
                 LoadSettings();
                 LoadData();
                 UpdateDailySummary();
-        
-                MessageBox.Show("Daten erfolgreich geladen.", "Erfolg", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                MessageBox.Show("Daten erfolgreich geladen.", "Erfolg", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Fehler beim Laden der Daten: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fehler beim Laden der Daten: {ex.Message}", "Fehler", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             LoadData();
+            LoadWeightData();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             SaveData();
+            SaveWeightData();
         }
 
         private void LoadData()
@@ -196,7 +365,7 @@ namespace Kalorien_Tracker
             CarbsTextBox.Text = (settings["carbs_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
             FatTextBox.Text = (settings["fat_ratio"] * 100).ToString(CultureInfo.CurrentCulture);
         }
-        
+
         private void SaveData_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -220,7 +389,7 @@ namespace Kalorien_Tracker
                 {
                     settings["fat_ratio"] = fatPercentage / 100;
                 }
-                
+
                 double totalPercentage =
                     (settings["protein_ratio"] + settings["carbs_ratio"] + settings["fat_ratio"]) * 100;
                 if (Math.Abs(totalPercentage - 100) > 1)
@@ -229,10 +398,10 @@ namespace Kalorien_Tracker
                         MessageBoxImage.Error);
                     return;
                 }
-                
+
                 tracker.UpdateSettings((int)settings["calorie_goal"], settings["protein_ratio"],
                     settings["carbs_ratio"], settings["fat_ratio"]);
-                
+
                 UpdateDailySummary();
             }
             catch (Exception ex)
@@ -241,10 +410,9 @@ namespace Kalorien_Tracker
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
+
             try
             {
-                
                 SaveSettings();
                 SaveData();
 
@@ -263,6 +431,7 @@ namespace Kalorien_Tracker
             currentDate = currentDate.AddDays(-1);
             DateLabel.Content = currentDate.ToString("dd.MM.yyyy");
             UpdateDailySummary();
+            UpdateWeightDisplay();
         }
 
         private void NextDay_Click(object sender, RoutedEventArgs e)
@@ -270,6 +439,20 @@ namespace Kalorien_Tracker
             currentDate = currentDate.AddDays(1);
             DateLabel.Content = currentDate.ToString("dd.MM.yyyy");
             UpdateDailySummary();
+            UpdateWeightDisplay();
+        }
+
+        private void UpdateWeightDisplay()
+        {
+            string dateStr = currentDate.ToString("yyyy-MM-dd");
+            if (weightData.ContainsKey(dateStr))
+            {
+                WeightTextBox.Text = weightData[dateStr].ToString(CultureInfo.CurrentCulture);
+            }
+            else
+            {
+                WeightTextBox.Text = string.Empty;
+            }
         }
 
         private void RemoveFood_Click(object sender, RoutedEventArgs e)

@@ -16,6 +16,39 @@
         <SolidColorBrush x:Key="ControlForegroundBrush" Color="White" />
         <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
 
+        <Style x:Key="TimeRangeRadioButton" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#282828" />
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Margin="{TemplateBinding Padding}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#1560BD" />
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="BorderThickness" Value="1" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#104e8b" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <!-- Modern Button Style -->
         <Style TargetType="Button">
             <Setter Property="Foreground" Value="{StaticResource ControlForegroundBrush}" />
@@ -79,58 +112,87 @@
         </Grid.ColumnDefinitions>
 
         <!-- Left Sidebar -->
-        <Border Grid.Column="0" Margin="6" CornerRadius="8">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" Opacity="0.2">
-                    <GradientStop Color="#1560BD" Offset="0" />
-                    <GradientStop Color="#1560BD" Offset="1" />
-                </LinearGradientBrush>
-            </Border.Background>
-            <Grid Margin="6" VerticalAlignment="Stretch">
-                <!-- Zeilendefinitionen -->
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" /> <!-- Zeile für "Gestern", "Datum" und "Morgen" -->
-                    <RowDefinition Height="*" />    <!-- Zeile für die restlichen Buttons -->
-                </Grid.RowDefinitions>
+        <Grid Grid.Column="0" Background="#232323" Width="200">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" /> <!-- Date Navigation -->
+                <RowDefinition Height="Auto" /> <!-- Weight Section -->
+                <RowDefinition Height="Auto" /> <!-- Settings Section (New) -->
+                <RowDefinition Height="Auto" /> <!-- Action Buttons -->
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-                <!-- Spaltendefinitionen für die erste Zeile -->
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" /> <!-- Für den "Gestern"-Button -->
-                    <ColumnDefinition Width="*" />    <!-- Für das Datum (flexibler Platz) -->
-                    <ColumnDefinition Width="Auto" /> <!-- Für den "Morgen"-Button -->
-                </Grid.ColumnDefinitions>
+            <!-- Date Navigation Section -->
+            <StackPanel Grid.Row="0" Margin="10">
+                <Label Content="Datum" Foreground="White" FontSize="14" HorizontalAlignment="Center" />
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="PrevDay" Grid.Column="0" Content="&lt;" Width="30" Click="PrevDay_Click" />
+                    <Label x:Name="DateLabel" Grid.Column="1" Content="01.01.2023" Foreground="White"
+                           HorizontalAlignment="Center" />
+                    <Button x:Name="NextDay" Grid.Column="2" Content="&gt;" Width="30" Click="NextDay_Click" />
+                </Grid>
+            </StackPanel>
 
-                <!-- Button "Gestern" links vom Datum -->
-                <Button Grid.Row="0" Grid.Column="0" Content="&#8592;" Width="28" Height="28" Margin="2"
-                        Click="PrevDay_Click"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <!-- Weight Section -->
+            <StackPanel Grid.Row="1" Margin="10">
+                <Label Content="Gewicht (kg)" Foreground="White" FontSize="14" HorizontalAlignment="Center" />
+                <TextBox x:Name="WeightTextBox" Margin="0,6,0,6" Width="180" HorizontalAlignment="Center" />
+                <Button Content="Gewicht speichern" Click="SaveWeight_Click" Margin="0,6,0,0" />
+            </StackPanel>
 
-                <!-- Datum in der Mitte -->
-                <Label Grid.Row="0" Grid.Column="1" x:Name="DateLabel" Content="Datum" Foreground="White" FontSize="14"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,0,4,0" />
+            <!-- Settings Section -->
+            <StackPanel Grid.Row="2" Margin="10">
+                <Label Content="Einstellungen" Foreground="White" FontSize="14" HorizontalAlignment="Center" />
 
-                <!-- Button "Morgen" rechts vom Datum -->
-                <Button Grid.Row="0" Grid.Column="2" Content="&#8594;" Width="28" Height="28" Margin="2"
-                        Click="NextDay_Click"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <!-- Weitere Buttons in der zweiten Zeile -->
-                <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" Margin="0,12,0,0">
-                    <Button Content="Speichern" Click="SaveData_Click" />
-                    <Button Content="Laden" Click="LoadData_Click" />
-                    <Button Content="Essen hinzufügen" Click="OpenAddMealWindow_Click" />
-                    <Button Content="Essen entfernen" Click="RemoveFood_Click" />
-                </StackPanel>
-            </Grid>
-        </Border>
+                    <Label Content="Kalorienziel:" Grid.Row="0" Grid.Column="0" Foreground="White"
+                           VerticalAlignment="Center" FontSize="11" />
+                    <TextBox x:Name="CalorieGoalTextBox" Grid.Row="0" Grid.Column="1" Width="Auto" Margin="2" />
+
+                    <Label Content="Protein (%):" Grid.Row="1" Grid.Column="0" Foreground="White"
+                           VerticalAlignment="Center" FontSize="11" />
+                    <TextBox x:Name="ProteinTextBox" Grid.Row="1" Grid.Column="1" Width="Auto" Margin="2" />
+
+                    <Label Content="Carbs (%):" Grid.Row="2" Grid.Column="0" Foreground="White"
+                           VerticalAlignment="Center" FontSize="11" />
+                    <TextBox x:Name="CarbsTextBox" Grid.Row="2" Grid.Column="1" Width="Auto" Margin="2" />
+
+                    <Label Content="Fett (%):" Grid.Row="3" Grid.Column="0" Foreground="White"
+                           VerticalAlignment="Center" FontSize="11" />
+                    <TextBox x:Name="FatTextBox" Grid.Row="3" Grid.Column="1" Width="Auto" Margin="2" />
+                </Grid>
+            </StackPanel>
+
+            <!-- Action Buttons -->
+            <StackPanel Grid.Row="3" Margin="10">
+                <Button Content="Essen hinzufügen" Click="OpenAddMealWindow_Click" Margin="0,6,0,0" />
+                <Button Content="Essen entfernen" Click="RemoveFood_Click" Margin="0,6,0,0" />
+                <Button Content="Speichern" Click="SaveData_Click" Margin="0,6,0,0" />
+                <Button Content="Laden" Click="LoadData_Click" Margin="0,6,0,0" />
+            </StackPanel>
+        </Grid>
 
         <!-- Right Content - Using Grid to optimize space -->
         <Grid Grid.Column="1" Margin="6">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" /> <!-- Progress section -->
-                <RowDefinition Height="Auto" /> <!-- Settings section -->
-                <RowDefinition Height="Auto" /> <!-- Daily summary section -->
-                <RowDefinition Height="*" /> <!-- Macro section + chart -->
+                <RowDefinition Height="Auto" /> <!-- Weight Chart section -->
+                <RowDefinition Height="Auto" /> <!-- Daily summary + Macro chart section -->
             </Grid.RowDefinitions>
 
             <!-- Progress Section -->
@@ -149,107 +211,123 @@
                        Margin="0,8,0,0" Opacity="0.6" />
 
                 <!-- Progress Bar -->
-                <ProgressBar Grid.Row="1" x:Name="CalorieProgressBar" Width="300" Height="18" Background="#282828"
-                             Margin="0,6,0,0" BorderBrush="#1560BD" HorizontalAlignment="Left" />
+                <ProgressBar Grid.Row="1" x:Name="CalorieProgressBar" Height="22" Background="#282828"
+                             Margin="0,6,0,0" BorderBrush="#1560BD" HorizontalAlignment="Stretch" />
 
                 <!-- Progress Label -->
-                <Label Grid.Row="2" x:Name="ProgressLabel" Content="0 / 0 kcal (0%)" Foreground="White" FontSize="12"
+                <Label Grid.Row="2" x:Name="ProgressLabel" Content="0 / 0 kcal (0%)" Foreground="White" FontSize="14"
                        HorizontalAlignment="Left" Margin="0,4,0,0" Opacity="0.6" />
             </Grid>
 
-            <!-- Settings Section -->
+            <!-- Weight Chart Section (Now fully occupies Row 1) -->
             <Grid Grid.Row="1" Margin="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" /> <!-- Title -->
+                    <RowDefinition Height="Auto" /> <!-- Time range buttons -->
+                    <RowDefinition Height="*" /> <!-- Chart -->
                 </Grid.RowDefinitions>
 
-                <!-- Settings Label -->
-                <Label Grid.Row="0" Content="Einstellungen" Foreground="White" FontSize="14" HorizontalAlignment="left"
-                       Margin="0,8,0,0" Opacity="0.6" />
+                <Label Grid.Row="0" Content="Gewichtsverlauf" Foreground="White" FontSize="14"
+                       HorizontalAlignment="Left" Margin="0,8,0,0" Opacity="0.6" />
 
-                <!-- Settings Grid -->
-                <Grid Grid.Row="1" Width="300" Margin="0,6,0,0" HorizontalAlignment="Left">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="110" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                <!-- Time range buttons -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,6,0,12">
+                    <RadioButton x:Name="LastMonthRadio" Content="Letzter Monat"
+                                 Style="{StaticResource TimeRangeRadioButton}"
+                                 Checked="TimeRangeRadio_Checked" />
+                    <RadioButton x:Name="Last3MonthsRadio" Content="Letzte 3 Monate"
+                                 Style="{StaticResource TimeRangeRadioButton}"
+                                 Checked="TimeRangeRadio_Checked" />
+                    <RadioButton x:Name="Last6MonthsRadio" Content="Letzte 6 Monate"
+                                 Style="{StaticResource TimeRangeRadioButton}"
+                                 Checked="TimeRangeRadio_Checked" />
+                    <RadioButton x:Name="LastYearRadio" Content="Letztes Jahr"
+                                 Style="{StaticResource TimeRangeRadioButton}"
+                                 Checked="TimeRangeRadio_Checked"
+                                 IsChecked="True" />
+                </StackPanel>
 
-                    <Label Content="Kalorienziel:" Grid.Row="0" Grid.Column="0" Foreground="White"
-                           VerticalAlignment="Center" FontSize="12" />
-                    <TextBox x:Name="CalorieGoalTextBox" Grid.Row="0" Grid.Column="1" Width="Auto" Margin="2,2,0,2" />
-
-                    <Label Content="Protein (%):" Grid.Row="1" Grid.Column="0" Foreground="White"
-                           VerticalAlignment="Center" FontSize="12" />
-                    <TextBox x:Name="ProteinTextBox" Grid.Row="1" Grid.Column="1" Width="Auto" Margin="2,2,0,2" />
-
-                    <Label Content="Kohlenhydrate (%):" Grid.Row="2" Grid.Column="0" Foreground="White"
-                           VerticalAlignment="Center" FontSize="12" />
-                    <TextBox x:Name="CarbsTextBox" Grid.Row="2" Grid.Column="1" Width="Auto" Margin="2,2,0,2" />
-
-                    <Label Content="Fett (%):" Grid.Row="3" Grid.Column="0" Foreground="White"
-                           VerticalAlignment="Center" FontSize="12" />
-                    <TextBox x:Name="FatTextBox" Grid.Row="3" Grid.Column="1" Width="Auto" Margin="2,2,0,2" />
-                </Grid>
+                <lvc:CartesianChart Grid.Row="2" x:Name="WeightChart" Margin="0,6,0,0" Height="180">
+                    <lvc:CartesianChart.AxisX>
+                        <lvc:Axis Title="Datum" Foreground="White" FontSize="14">
+                            <lvc:Axis.Separator>
+                                <lvc:Separator StrokeThickness="1" Stroke="#404040" />
+                            </lvc:Axis.Separator>
+                        </lvc:Axis>
+                    </lvc:CartesianChart.AxisX>
+                    <lvc:CartesianChart.AxisY>
+                        <lvc:Axis Title="Gewicht (kg)" Foreground="White" FontSize="14">
+                            <lvc:Axis.Separator>
+                                <lvc:Separator StrokeThickness="1" Stroke="#404040" />
+                            </lvc:Axis.Separator>
+                        </lvc:Axis>
+                    </lvc:CartesianChart.AxisY>
+                </lvc:CartesianChart>
             </Grid>
 
-            <!-- Daily Summary Section -->
-            <!-- Daily Summary Section -->
+            <!-- Daily Summary + Macro Chart Section -->
             <Grid Grid.Row="2" Margin="4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" /> <!-- Daily Summary + Macro text -->
+                    <ColumnDefinition Width="*" /> <!-- Pie Chart -->
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" /> <!-- New row for the pie chart -->
-                </Grid.RowDefinitions>
 
-                <!-- First label -->
-                <Label Grid.Row="0" Content="Tageszusammenfassung" Foreground="White" FontSize="14"
-                       HorizontalAlignment="Left" Margin="0,8,0,0" Opacity="0.6" />
+                <!-- Daily Summary Section -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" /> <!-- Title -->
+                        <RowDefinition Height="Auto" /> <!-- ListBox -->
+                        <RowDefinition Height="Auto" /> <!-- Title -->
+                        <RowDefinition Height="Auto" /> <!-- TextBox -->
+                    </Grid.RowDefinitions>
 
-                <!-- ListBox under first label -->
-                <ListBox Grid.Row="1" x:Name="DailySummaryListBox" Foreground="White" Width="300" Height="140"
-                         FontSize="12" Background="#282828" Margin="0,6,0,0" BorderBrush="#1560BD"
-                         HorizontalAlignment="Left" />
+                    <!-- First label -->
+                    <Label Grid.Row="0" Content="Tageszusammenfassung" Foreground="White" FontSize="14"
+                           HorizontalAlignment="Left" Margin="0,8,0,0" Opacity="0.6" />
 
-                <!-- Second label -->
-                <Label Grid.Row="2" Content="Makrowerte" Foreground="White" FontSize="14"
-                       HorizontalAlignment="Left" Margin="0,8,0,0" Opacity="0.6" />
+                    <!-- ListBox under first label -->
+                    <ListBox Grid.Row="1" x:Name="DailySummaryListBox" Foreground="White" Width="300" Height="140"
+                             FontSize="14" Background="#282828" Margin="0,6,0,0" BorderBrush="#1560BD"
+                             HorizontalAlignment="Left" />
 
-                <!-- TextBox under second label -->
-                <TextBox Grid.Row="3" x:Name="MacroTextBox" Width="300" Height="70" FontSize="12"
-                         Padding="4" Background="#282828" Foreground="White" IsReadOnly="True"
-                         Margin="0,6,0,0" BorderBrush="#1560BD" HorizontalAlignment="Left" />
+                    <!-- Second label -->
+                    <Label Grid.Row="2" Content="Makrowerte" Foreground="White" FontSize="14"
+                           HorizontalAlignment="Left" Margin="0,8,0,0" Opacity="0.6" />
 
-                <!-- Pie Chart directly under the TextBox -->
-                <lvc:PieChart Grid.Row="4" x:Name="MacroPieChart"
-                              Width="180"
-                              Height="160"
-                              Margin="4,8,4,4"
-                              Series="{Binding MacroSeries}"
-                              LegendLocation="Bottom"
-                              Hoverable="True"
-                              DataTooltip="{x:Null}"
-                              Foreground="White"
-                              HorizontalAlignment="Center"
-                              AnimationsSpeed="0:0:0.5">
-                    <lvc:PieChart.ChartLegend>
-                        <lvc:DefaultLegend BulletSize="10" FontSize="10" />
-                    </lvc:PieChart.ChartLegend>
-                </lvc:PieChart>
+                    <!-- TextBox under second label -->
+                    <TextBox Grid.Row="3" x:Name="MacroTextBox" Width="300" Height="90" FontSize="14"
+                             Padding="4" Background="#282828" Foreground="White" IsReadOnly="True"
+                             Margin="0,6,0,0" BorderBrush="#1560BD" HorizontalAlignment="Left">
+                        <TextBox.Template>
+                            <ControlTemplate TargetType="TextBox">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="0">
+                                    <ScrollViewer Margin="0" x:Name="PART_ContentHost" />
+                                </Border>
+                            </ControlTemplate>
+                        </TextBox.Template>
+                    </TextBox>
+                </Grid>
+
+                <!-- Pie Chart -->
+                <Grid Grid.Column="1" Margin="20,0,0,0">
+                    <lvc:PieChart x:Name="MacroPieChart"
+                                  Width="350"
+                                  Height="350"
+                                  Series="{Binding MacroSeries}"
+                                  LegendLocation="Right"
+                                  VerticalAlignment="Center"
+                                  Hoverable="True"
+                                  DataTooltip="{x:Null}"
+                                  Foreground="White"
+                                  AnimationsSpeed="0:0:0.5">
+                        <lvc:PieChart.ChartLegend>
+                            <lvc:DefaultLegend BulletSize="10" FontSize="14" />
+                        </lvc:PieChart.ChartLegend>
+                    </lvc:PieChart>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
