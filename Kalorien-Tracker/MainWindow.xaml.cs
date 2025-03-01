@@ -481,8 +481,15 @@ namespace Kalorien_Tracker
             addMealWindow.SetFoodSuggestions(suggestions);
             if (addMealWindow.ShowDialog() == true)
             {
-                tracker.AddFood(addMealWindow.MealName, addMealWindow.MealCalories, addMealWindow.MealProtein,
-                    addMealWindow.MealCarbs, addMealWindow.MealFat, addMealWindow.MealAmount);
+                tracker.AddFood(
+                    addMealWindow.MealName, 
+                    addMealWindow.MealCalories, 
+                    addMealWindow.MealProtein, 
+                    addMealWindow.MealCarbs, 
+                    addMealWindow.MealFat, 
+                    addMealWindow.MealAmount,
+                    addMealWindow.MealEAN); // Include EAN from UI
+        
                 UpdateDailySummary();
             }
         }

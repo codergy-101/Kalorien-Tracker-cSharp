@@ -1,22 +1,31 @@
-﻿using System.Windows;
+﻿// In AddMealWindow.xaml.cs:
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
+using Newtonsoft.Json;
 
 namespace Kalorien_Tracker
 {
     public partial class AddMealWindow : Window
     {
-        public string MealName { get; private set; }
-        public double MealCalories { get; private set; }
-        public double MealProtein { get; private set; }
-        public double MealCarbs { get; private set; }
-        public double MealFat { get; private set; }
-        public double MealAmount { get; private set; }
-
+        public string MealName => MealNameTextBox.Text?.Trim() ?? "";
+        public double MealCalories => double.TryParse(MealCaloriesTextBox.Text, out double calories) ? calories : 0;
+        public double MealProtein => double.TryParse(MealProteinTextBox.Text, out double protein) ? protein : 0;
+        public double MealCarbs => double.TryParse(MealCarbsTextBox.Text, out double carbs) ? carbs : 0;
+        public double MealFat => double.TryParse(MealFatTextBox.Text, out double fat) ? fat : 0;
+        public double MealAmount => double.TryParse(MealAmountTextBox.Text, out double amount) ? amount : 0;
+        public string MealEAN => EANTextBox.Text?.Trim() ?? "";
+        
         private List<FoodItem> foodSuggestions;
 
         public AddMealWindow()
         {
             InitializeComponent();
+
         }
 
         public void SetFoodSuggestions(List<FoodItem> suggestions)
@@ -28,20 +37,77 @@ namespace Kalorien_Tracker
         {
             if (foodSuggestions != null && !string.IsNullOrWhiteSpace(MealNameTextBox.Text))
             {
-                // Filtere die Vorschläge basierend auf der Eingabe
                 var closestMatches = foodSuggestions
                     .Where(f => f.Name.StartsWith(MealNameTextBox.Text, StringComparison.OrdinalIgnoreCase))
-                    .Take(3) // Nimm die ersten 3 Übereinstimmungen
+                    .Take(3)
                     .Select(f => f.Name)
                     .ToList();
 
                 SuggestionsListBox.ItemsSource = closestMatches;
-                SuggestionsPopup.IsOpen = closestMatches.Any(); // Öffne das Popup, wenn es Vorschläge gibt
+                SuggestionsPopup.IsOpen = closestMatches.Any();
             }
             else
             {
-                SuggestionsPopup.IsOpen = false; // Schließe das Popup, wenn keine Vorschläge vorhanden sind
+                SuggestionsPopup.IsOpen = false;
             }
+        }
+        
+        private void EANTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (foodSuggestions != null && !string.IsNullOrWhiteSpace(EANTextBox.Text))
+            {
+                // Check if input is numeric
+                if (!EANTextBox.Text.All(char.IsDigit))
+                {
+                    // Optional: Clear non-numeric characters
+                    string numericOnly = new string(EANTextBox.Text.Where(char.IsDigit).ToArray());
+                    if (EANTextBox.Text != numericOnly)
+                    {
+                        EANTextBox.Text = numericOnly;
+                        EANTextBox.CaretIndex = numericOnly.Length;
+                        return;
+                    }
+                }
+        
+                var eanQuery = EANTextBox.Text;
+                var eanMatches = foodSuggestions
+                    .Where(f => !string.IsNullOrEmpty(f.EAN) && f.EAN.Contains(eanQuery))
+                    .Take(3)
+                    .ToList();
+
+                if (eanMatches.Any())
+                {
+                    // If we have an exact match, auto-fill the form
+                    var exactMatch = eanMatches.FirstOrDefault(f => f.EAN == eanQuery);
+                    if (exactMatch != null)
+                    {
+                        FillFormWithFoodItem(exactMatch);
+                        return;
+                    }
+
+                    // Otherwise show suggestions
+                    SuggestionsListBox.ItemsSource = eanMatches.Select(f => f.Name);
+                    SuggestionsPopup.IsOpen = true;
+                }
+                else
+                {
+                    SuggestionsPopup.IsOpen = false;
+                }
+            }
+            else
+            {
+                SuggestionsPopup.IsOpen = false;
+            }
+        }
+        
+        private void FillFormWithFoodItem(FoodItem food)
+        {
+            MealNameTextBox.Text = food.Name;
+            MealCaloriesTextBox.Text = food.Calories.ToString();
+            MealProteinTextBox.Text = food.Protein.ToString();
+            MealCarbsTextBox.Text = food.Carbs.ToString();
+            MealFatTextBox.Text = food.Fat.ToString();
+            EANTextBox.Text = food.EAN ?? "";
         }
 
         private void SuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -51,35 +117,58 @@ namespace Kalorien_Tracker
                 var selectedFood = foodSuggestions.FirstOrDefault(f => f.Name == SuggestionsListBox.SelectedItem.ToString());
                 if (selectedFood != null)
                 {
-                    MealNameTextBox.Text = selectedFood.Name;
-                    MealCaloriesTextBox.Text = selectedFood.Calories.ToString();
-                    MealProteinTextBox.Text = selectedFood.Protein.ToString();
-                    MealCarbsTextBox.Text = selectedFood.Carbs.ToString();
-                    MealFatTextBox.Text = selectedFood.Fat.ToString();
+                    FillFormWithFoodItem(selectedFood);
                 }
 
-                SuggestionsPopup.IsOpen = false; // Schließe das Popup nach der Auswahl
+                SuggestionsPopup.IsOpen = false;
             }
         }
 
         private void AddMealButton_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (ValidateMealData())
             {
-                MealName = MealNameTextBox.Text;
-                MealCalories = double.Parse(MealCaloriesTextBox.Text);
-                MealProtein = double.Parse(MealProteinTextBox.Text);
-                MealCarbs = double.Parse(MealCarbsTextBox.Text);
-                MealFat = double.Parse(MealFatTextBox.Text);
-                MealAmount = double.Parse(MealAmountTextBox.Text);
+                if (ShouldSaveSuggestion.IsChecked == true)
+                {
+                    // Use constructor instead of object initializer
+                    var newFoodItem = new FoodItem(
+                        MealName,
+                        MealCalories,
+                        MealProtein,
+                        MealCarbs,
+                        MealFat,
+                        100, // Base amount for suggestions
+                        MealEAN);
+
+                    foodSuggestions.Add(newFoodItem);
+                    File.WriteAllText("food_data.json", JsonConvert.SerializeObject(foodSuggestions));
+                }
 
                 DialogResult = true;
-                Close();
             }
-            catch (Exception ex)
+        }
+
+        private bool ValidateMealData()
+        {
+            if (string.IsNullOrWhiteSpace(MealName))
             {
-                MessageBox.Show($"Fehler bei der Eingabe: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Bitte geben Sie einen Namen ein.", "Fehlerhafte Eingabe", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
             }
+
+            if (MealCalories <= 0)
+            {
+                MessageBox.Show("Bitte geben Sie einen gültigen Wert für Kalorien ein.", "Fehlerhafte Eingabe", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (MealAmount <= 0)
+            {
+                MessageBox.Show("Bitte geben Sie eine gültige Menge ein.", "Fehlerhafte Eingabe", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
         }
     }
 }

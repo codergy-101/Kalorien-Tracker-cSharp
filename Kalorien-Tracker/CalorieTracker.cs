@@ -23,7 +23,7 @@ public class CalorieTracker
         FoodData = new List<FoodItem>();
     }
 
-    public void AddFood(string name, double calories, double protein, double carbs, double fat, double amount)
+    public void AddFood(string name, double calories, double protein, double carbs, double fat, double amount, string ean = "")
     {
         string today = DateTime.Today.ToString("yyyy-MM-dd");
         if (DailyLog != null && !DailyLog.ContainsKey(today))
@@ -32,29 +32,22 @@ public class CalorieTracker
         }
 
         double factor = amount / 100.0;
-        var foodItem = new FoodItem
-        {
-            Name = name,
-            Calories = calories * factor,
-            Protein = protein * factor,
-            Carbs = carbs * factor,
-            Fat = fat * factor
-        };
+        var foodItem = new FoodItem(
+            name, 
+            calories * factor, 
+            protein * factor, 
+            carbs * factor, 
+            fat * factor, 
+            amount, 
+            ean);
 
         DailyLog?[today].Add(foodItem);
         SaveDailyLogToJson("daily_log.json");
-
-        // Check if the food item already exists in FoodData
+        
+        
         if (FoodData != null && !FoodData.Any(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
-            FoodData.Add(new FoodItem
-            {
-                Name = name,
-                Calories = calories,
-                Protein = protein,
-                Carbs = carbs,
-                Fat = fat
-            });
+            FoodData.Add(new FoodItem(name, calories, protein, carbs, fat, 100, ean));
             SaveFoodDataToJson("food_data.json");
         }
     }
@@ -159,4 +152,17 @@ public class FoodItem
     public double Protein { get; set; }
     public double Carbs { get; set; }
     public double Fat { get; set; }
+    public double Amount { get; set; }
+    public string EAN { get; set; } // New EAN property
+
+    public FoodItem(string name, double calories, double protein, double carbs, double fat, double amount, string ean = "")
+    {
+        Name = name;
+        Calories = calories;
+        Protein = protein;
+        Carbs = carbs;
+        Fat = fat;
+        Amount = amount;
+        EAN = ean;
+    }
 }
